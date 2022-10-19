@@ -1,15 +1,25 @@
+from rest_framework.authtoken.views import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-# from django.contrib.auth.models import CustomUser
 from django.contrib.auth import get_user_model
 from rest_framework import status
+from .serializers import UserRegisterSerializer, UserDetailsSerializer
+# from rest_framework.decorators import permission_classes
+# from rest_framework.permissions import IsAuthenticated
+
 User = get_user_model()
 
 @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
 def home(request):
     if request.method == 'GET':
-        # return Response(srlzr.data, status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_200_OK)    
+        serializer = UserRegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            pass
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_200_OK)  
 
 """
 {
@@ -27,53 +37,26 @@ def home(request):
 @api_view(['POST'])
 def register(request):
     if request.method == 'POST':
-        try:
-            username = request.data['username']
-        except KeyError:
-            return Response({'Error': "Username is a required field!"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            email = request.data['email']
-        except KeyError:
-            return Response({'Error': "Email is a required field!"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            role = request.data['role']
-        except KeyError:
-            return Response({'Error': "Role is a required field!"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            country = request.data['country']
-        except KeyError:
-            return Response({'Error': "Country is a required field!"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            nationality = request.data['nationality']
-        except KeyError:
-            return Response({'Error': "Nationality is a required field!"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            mobile_no = request.data['mobile_no']
-        except KeyError:
-            return Response({'Error': "Mobile no is a required field!"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            password = request.data['password']
-        except KeyError:
-            return Response({'Error': "Password is a required field!"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            confirm_password = request.data['confirm_password']
-        except KeyError:
-            return Response({'Error': "Confirm password is a required field!"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if User.objects.filter(username=username) or User.objects.filter(email=email):
-            return Response({'Error': "Username/Email already exist!"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if password != confirm_password:
-            return Response({'Error': "Password not matching!"}, status=status.HTTP_400_BAD_REQUEST)
-
-        User.objects.create(username=username, email=email, role=role, country=country, nationality=nationality, mobile_no=mobile_no, password=password)
-
-        return Response({}, status=status.HTTP_201_CREATED)
+        serializer = UserRegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            if User.objects.filter(email=request.data['email']):
+                return Response({'Error': "A user with that email already exists!"}, status=status.HTTP_400_BAD_REQUEST)
+            if request.data['password'] != request.data['confirm_password']:
+                return Response({'Error': "Password not matching!"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer.save()
+            user = User.objects.get(username=request.data['username'])
+            Token.objects.create(user=user)
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_201_CREATED)
     
+        return Response({"Success": "ok"}, status=status.HTTP_201_CREATED)
+    
+@api_view(['GET'])
+def user_details(request, token):
+    if request.method == 'GET':
+        token = Token.objects.get(key=token)
+        user = User.objects.get(username=token.user.username)
+        serializer = UserDetailsSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)    
