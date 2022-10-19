@@ -4,35 +4,17 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from .serializers import UserRegisterSerializer, UserDetailsSerializer
-# from rest_framework.decorators import permission_classes
-# from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-def home(request):
-    if request.method == 'GET':
-        serializer = UserRegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            pass
-        else:
-            print(serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_200_OK)  
-
-"""
-{
-    "username" : "athie",
-    "email" : "athie@g.co",
-    "role" : "admin",
-    "country" : "india",
-    "nationality" : "india",
-    "mobile_no" : "9098909877",
-    "password" : "1234",
-    "confirm_password" : "1234"
-}
-"""
+def api_over_view(request):
+    data = {
+        "Login API" : 'login/',
+        "Register API" : 'register/',
+        "User details API" : 'user/details/<token>/',
+    }
+    return Response(data, status=status.HTTP_200_OK)  
 
 @api_view(['POST'])
 def register(request):
