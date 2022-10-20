@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.api_over_view, name='api_over_view'),
     path('register/', views.register, name='register'),
-    path('login/', obtain_auth_token),
+    path('login/', views.login, name='login'),
+    # path('login/', obtain_auth_token),
     path('user/details/<str:token>/', views.user_details, name='user_details'),
 ]

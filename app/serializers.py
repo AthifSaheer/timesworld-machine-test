@@ -3,6 +3,12 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+class UserLoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['password', 'email']
+
+
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
