@@ -23,17 +23,16 @@ def register(request):
         if serializer.is_valid():
             if User.objects.filter(email=request.data['email']):
                 return Response({'Error': "A user with that email already exists!"}, status=status.HTTP_400_BAD_REQUEST)
-            if request.data['password'] != request.data['confirm_password']:
-                return Response({'Error': "Password not matching!"}, status=status.HTTP_400_BAD_REQUEST)
             
             serializer.save()
             user = User.objects.get(username=request.data['username'])
             Token.objects.create(user=user)
+            return Response({"Success": "ok"}, status=status.HTTP_201_CREATED)
         else:
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_201_CREATED)
     
-        return Response({"Success": "ok"}, status=status.HTTP_201_CREATED)
+    return Response({"Error": "Something went wrong!"}, status=status.HTTP_201_CREATED)
     
 @api_view(['GET'])
 def user_details(request, token):
