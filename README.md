@@ -6,7 +6,7 @@
 
 * Backend - `Python Django rest framework` `SQLite3`
 * Frontend - `Reactjs`
-* Libraries - `pydantic` `SQLAlchemy` `uvicorn` `geopy`
+* Database - `PostgreSQL`
 
 <!-- GETTING STARTED -->
 ## Getting Started
